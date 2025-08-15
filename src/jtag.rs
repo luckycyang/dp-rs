@@ -1,5 +1,3 @@
-use std::mem;
-
 use bitvec::{field::BitField, vec::BitVec};
 use embedded_hal::{
     delay::DelayNs,
@@ -111,7 +109,7 @@ enum TapState {
 }
 
 // 目前是没有命令缓存的，也就是及时行乐
-struct JtagAdapter<J> {
+pub struct JtagAdapter<J> {
     rawio: J,
     bits: BitVec,
     state: TapState,
