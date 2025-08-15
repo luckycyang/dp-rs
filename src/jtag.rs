@@ -12,17 +12,20 @@ pub mod error {
     }
 }
 
-pub struct JtagIo<I, O, D> {
-    tck: O,
-    tms: O,
-    tdi: O,
+pub struct JtagIo<I, O0, O1, O2, D> {
+    tck: O0,
+    tms: O1,
+    tdi: O2,
     tdo: I,
     delay: D,
     speed: u32, // 为延时us
 }
 
-impl<I: InputPin, O: OutputPin, D: DelayNs> JtagIo<I, O, D> {
-    pub fn new(fileds: (O, O, O, I, D)) -> Self {
+impl<I: InputPin, O0: OutputPin, O1: OutputPin, O2: OutputPin, D: DelayNs>
+    JtagIo<I, O0, O1, O2, D>
+{
+    // 顺序为 TCK, TMS, TDI, TDO, Delay
+    pub fn new(fileds: (O0, O1, O2, I, D)) -> Self {
         // 33 ns 为半个时钟, 66 ns 为一个时钟，大概是 15Mhz 的时钟频率
         Self {
             tck: fileds.0,
@@ -89,7 +92,9 @@ pub trait RawJtagIo {
     }
 }
 
-impl<I: InputPin, O: OutputPin, D: DelayNs> RawJtagIo for JtagIo<I, O, D> {
+impl<I: InputPin, O0: OutputPin, O1: OutputPin, O2: OutputPin, D: DelayNs> RawJtagIo
+    for JtagIo<I, O0, O1, O2, D>
+{
     fn shift_bit(
         &mut self,
         tdi: bool,
