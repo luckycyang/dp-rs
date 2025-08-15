@@ -23,7 +23,6 @@ pub struct JtagIo<I, O0, O1, O2, D> {
 
 impl<I: InputPin, O0: OutputPin, O1: OutputPin, O2: OutputPin, D: DelayNs>
     JtagIo<I, O0, O1, O2, D>
-{
     // 顺序为 TCK, TMS, TDI, TDO, Delay
     pub fn new(fileds: (O0, O1, O2, I, D)) -> Self {
         // 33 ns 为半个时钟, 66 ns 为一个时钟，大概是 15Mhz 的时钟频率
