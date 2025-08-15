@@ -60,7 +60,7 @@ impl<I: InputPin, O: OutputPin, D: DelayNs> JtagIo<I, O, D> {
     }
 }
 
-trait RawJtagIo {
+pub trait RawJtagIo {
     fn shift_bit(
         &mut self,
         tdi: bool,
@@ -76,8 +76,7 @@ trait RawJtagIo {
         captures: Option<&mut [bool]>,
     ) -> Result<(), error::Error> {
         // 显然这会是双倍空间， 但是省去判断时间
-        if captures.is_some() {
-            let values = captures.unwrap();
+        if let Some(values) = captures {
             for (i, (&tdi, &tms)) in tdi.iter().zip(tms).enumerate() {
                 self.shift_bit(tdi, tms, Some(&mut values[i]))?;
             }
@@ -155,9 +154,15 @@ impl<J: RawJtagIo> JtagAdapter<J> {
     // 此方法，调用者确保在 Shift 状态使用
     fn sequence_bits(&mut self, tdi: &[bool], captures: bool) -> Result<(), error::Error> {
         let mut value = false;
-        for &v in tdi {
-            self.rawio.shift_bit(v, false, Some(&mut value))?;
-            self.bits.push(value);
+        if captures {
+            for &v in tdi {
+                self.rawio.shift_bit(v, false, Some(&mut value))?;
+                self.bits.push(value);
+            }
+        } else {
+            for &v in tdi {
+                self.rawio.shift_bit(v, false, None)?;
+            }
         }
         Ok(())
     }
