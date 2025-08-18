@@ -417,6 +417,7 @@ pub mod adi {
         pub const ABORT: u8 = 0b1000;
 
         // Register
+        pub const DP_IDR: u8 = 0b0000;
         pub const DP_CTRL_STAT: u8 = 0b0100;
         pub const DP_SELECT: u8 = 0b1000;
         pub const DP_RDBUFF: u8 = 0b1100;
