@@ -424,21 +424,14 @@
 //     }
 // }
 
-
-
 //! 代码接口参照（抄）的 probe-rs
 //! 由于用到的标准库，所以这不是 no_std 的
 //! 如果对于 nrf 和 bl 等支持 wifi 技术的 mcu，由于 esp-idf-svc 支持 std 所以能直接使用
 //! 其实代码也比较简单，只需要将使用标准库的数据结构替换为 core 支持的类型，或者自己实现特定类型
 //! 其中我们使用到了 BitVec 这个为了方便位操作，他提供类似 Vec<bool>，主要是能将位序列转化为对应 LSB/MSB 的 u32/u64... 等类似数据
 
-use bitvec::vec::BitVec;
 use crate::error;
-
-
-
-
-
+use bitvec::vec::BitVec;
 
 /// 菊花链每个 Tap 的长度
 type ChianElement = u8;
@@ -457,13 +450,10 @@ pub(crate) struct ChainParams {
 #[derive(Default)]
 pub struct JtagDriverState {
     pub taps: Vec<ChianElement>,
-    pub params: ChainParams
+    pub params: ChainParams,
 }
 
-
-
-
-pub(crate) trait RawJtagIo {
+pub trait RawJtagIo {
     /// 返回 JtagAdapter 的状态信息，主要为设置菊花链信息和选择Tap
     fn state_mut(&mut self) -> &mut JtagDriverState;
 
@@ -499,7 +489,6 @@ pub(crate) trait RawJtagIo {
         // 这里可能存在缓冲机制，需要提供 read_captures_bits 来消耗 shift_bit 操作
         // 具体观看 probe-rs 的源码就知道了
         let _response = self.read_captured_bits()?;
-
 
         Ok(())
     }

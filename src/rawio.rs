@@ -40,7 +40,7 @@ pub struct Adapter<TMS, TCK, TDI, TDO, D> {
     bits: BitVec,
 }
 
-impl<TMS: InputPin + OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D: DelayNs>
+impl<TMS: OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D: DelayNs>
     Adapter<TMS, TCK, TDI, TDO, D>
 {
     pub fn new(tms: TMS, tck: TCK, tdi: TDI, tdo: TDO, delay: D) -> Self {
@@ -61,6 +61,10 @@ impl<TMS: InputPin + OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D
     // 将时钟缓存全部推出
     pub fn flush(&mut self) -> Result<(), error::Error> {
         for clock in &self.clocks {
+            println!(
+                "shift bits tms: {}, tdi: {}, captures: {}",
+                clock.tms, clock.tdi, clock.capture
+            );
             self.tck.set_low().unwrap();
             self.tms.set_state(clock.tms.into()).unwrap();
             self.tdi.set_state(clock.tdi.into()).unwrap();
@@ -68,7 +72,7 @@ impl<TMS: InputPin + OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D
             self.delay.delay_ns(self.delay_ns);
 
             self.tck.set_high().unwrap();
-            self.delay.delay_ns(2);
+            self.delay.delay_ns(self.delay_ns);
 
             if clock.capture {
                 self.bits.push(self.tdo.is_high().unwrap());
@@ -79,8 +83,8 @@ impl<TMS: InputPin + OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D
     }
 }
 
-impl<TMS: InputPin + OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D: DelayNs>
-    RawJtagIo for Adapter<TMS, TCK, TDI, TDO, D>
+impl<TMS: OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D: DelayNs> RawJtagIo
+    for Adapter<TMS, TCK, TDI, TDO, D>
 {
     fn read_captured_bits(&mut self) -> Result<BitVec, crate::error::Error> {
         self.flush()?;
@@ -94,7 +98,6 @@ impl<TMS: InputPin + OutputPin, TCK: OutputPin, TDI: OutputPin, TDO: InputPin, D
         capture: bool,
     ) -> Result<(), crate::error::Error> {
         self.clocks.push(Clock { tms, tdi, capture });
-
         Ok(())
     }
 
